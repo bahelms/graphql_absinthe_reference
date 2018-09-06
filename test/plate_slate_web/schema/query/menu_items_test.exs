@@ -18,7 +18,7 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
     assert json = json_response(conn, 200)
     assert length(json["data"]["menuItems"]) == 14
     [item | _] = json["data"]["menuItems"]
-    assert item == %{"name" => "Reuben", "price" => "4.5"}
+    assert item == %{"name" => "Bánh mì", "price" => "4.5"}
   end
 
   @query """
@@ -68,5 +68,33 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
     response = get(conn, "/api", query: @query)
     assert %{"errors" => [%{"message" => message}]} = json_response(response, 400)
     assert message == "Argument \"matching\" has invalid value 123."
+  end
+
+  @query """
+  {
+    menuItems(order: DESC) {
+      name
+    }
+  }
+  """
+  test "menuItems field returns items descending using literals", %{conn: conn} do
+    response = get(conn, "/api", query: @query)
+    assert %{
+      "data" => %{"menuItems" => [%{"name" => "Water"} | _]}
+    } = json_response(response, 200)
+  end
+
+  @query """
+  query ($order: SortOrder!) {
+    menuItems(order: $order) {
+      name
+    }
+  }
+  """
+  test "menuItems field returns items descending using variables", %{conn: conn} do
+    response = get(conn, "/api", query: @query, variables: %{order: "DESC"})
+    assert %{
+      "data" => %{"menuItems" => [%{"name" => "Water"} | _]}
+    } = json_response(response, 200)
   end
 end

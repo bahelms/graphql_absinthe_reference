@@ -16,6 +16,8 @@ defmodule PlateSlateWeb.Schema do
     @desc "The list of available items on the menu!"
     field :menu_items, list_of(:menu_item) do
       arg :matching, :string
+      # enum values are passed in as all uppercase
+      arg :order, type: :sort_order, default_value: :asc
       resolve(&Resolvers.Menu.menu_items/3)
     end
   end
@@ -32,5 +34,10 @@ defmodule PlateSlateWeb.Schema do
 
     @desc "Current price of item"
     field(:price, :integer)
+  end
+
+  enum :sort_order do
+    value :asc
+    value :desc
   end
 end
