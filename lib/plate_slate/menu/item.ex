@@ -11,7 +11,6 @@ defmodule PlateSlate.Menu.Item do
   import Ecto.Changeset
   alias PlateSlate.Menu.Item
 
-
   schema "items" do
     field :added_on, :date
     field :description, :string

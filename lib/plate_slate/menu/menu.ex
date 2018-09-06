@@ -1,11 +1,11 @@
-#---
+# ---
 # Excerpted from "Craft GraphQL APIs in Elixir with Absinthe",
 # published by The Pragmatic Bookshelf.
 # Copyrights apply to this code. It may not be used to create training material,
 # courses, books, articles, and the like. Contact us if you are in doubt.
 # We make no guarantees that this code is fit for any purpose.
 # Visit http://www.pragmaticprogrammer.com/titles/wwgraphql for more book information.
-#---
+# ---
 defmodule PlateSlate.Menu do
   @moduledoc """
   The Menu context.
@@ -121,20 +121,46 @@ defmodule PlateSlate.Menu do
       [%Item{}, ...]
 
   """
-  def list_items(filters) do
-    filters
+  def list_items(args) do
+    args
     |> Enum.reduce(Item, fn
-      {_, nil}, query ->
-        query
-      {:order, order}, query ->
-        from q in query, order_by: {^order, :name}
-      {:matching, name}, query ->
-        from q in query, where: ilike(q.name, ^"%#{name}%")
+      {:order, order}, items ->
+        order_by(items, {^order, :name})
+
+      {:filter, filter}, items ->
+        filter_with(items, filter)
     end)
     |> Repo.all()
   end
+
   def list_items(_) do
     Repo.all(Item)
+  end
+
+  @spec filter_with(Ecto.Query.t, map) :: Ecto.Query.t
+  defp filter_with(items, filter) do
+    Enum.reduce(filter, items, fn
+      {:name, name}, items ->
+        from(item in items, where: ilike(item.name, ^"%#{name}%"))
+
+      {:priced_above, price}, items ->
+        from(item in items, where: item.price >= ^price)
+
+      {:priced_below, price}, items ->
+        from(item in items, where: item.price <= ^price)
+
+      {:category, category_name}, items ->
+        from(item in items,
+          join: c in assoc(item, :category),
+          where: ilike(c.name, ^"%#{category_name}%")
+        )
+
+      {:tag, tag_name}, items ->
+        from(item in items,
+          join: t in assoc(item, :tags),
+          where: ilike(t.name, ^"%#{tag_name}%")
+        )
+    end)
   end
 
   @doc """
