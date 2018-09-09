@@ -8,21 +8,26 @@
 # ---
 defmodule PlateSlateWeb.Schema do
   use Absinthe.Schema
-  import Ecto.Query
-  alias PlateSlate.Menu
   alias PlateSlateWeb.Resolvers
 
   query do
     @desc "The list of available items on the menu!"
     field :menu_items, list_of(:menu_item) do
-      arg :filter, :menu_item_filter
+      arg(:filter, :menu_item_filter)
       # enum values are passed in as all uppercase
-      arg :order, type: :sort_order, default_value: :asc
+      arg(:order, type: :sort_order, default_value: :asc)
       resolve(&Resolvers.Menu.menu_items/3)
+    end
+
+    @desc "List of current item categories"
+    field :categories, list_of(:category) do
+      arg(:matching, :string)
+      arg(:order, type: :sort_order, default_value: :asc)
+      resolve(&Resolvers.Menu.categories/3)
     end
   end
 
-  @desc "List of items on the menu"
+  @desc "Item available on the menu"
   object :menu_item do
     field(:id, :id)
 
@@ -34,28 +39,57 @@ defmodule PlateSlateWeb.Schema do
 
     @desc "Current price of item"
     field(:price, :integer)
+
+    @desc "Date added to menu"
+    field(:added_on, :date)
+  end
+
+  object :category do
+    field(:name, :string)
   end
 
   enum :sort_order do
-    value :asc
-    value :desc
+    value(:asc)
+    value(:desc)
   end
 
   @desc "Filtering options for the menu item list"
   input_object :menu_item_filter do
     @desc "Matching a name"
-    field :name, :string
+    field(:name, :string)
 
     @desc "Matching a category name"
-    field :category, :string
+    # when a filter object is provided, category is required
+    field(:category, non_null(:string))
 
     @desc "Matching a tag"
-    field :tag, :string
+    field(:tag, :string)
 
     @desc "Priced above a value"
-    field :priced_above, :float
+    field(:priced_above, :float)
 
     @desc "Priced below a value"
-    field :priced_below, :float
+    field(:priced_below, :float)
+
+    @desc "Added to menu before this date"
+    field(:added_before, :date)
+
+    @desc "Added to menu after this date"
+    field(:added_after, :date)
+  end
+
+  scalar :date do
+    parse(fn input ->
+      with %Absinthe.Blueprint.Input.String{value: value} <- input,
+           {:ok, date} <- Date.from_iso8601(value) do
+        {:ok, date}
+      else
+        _ -> :error
+      end
+    end)
+
+    serialize(fn date ->
+      Date.to_iso8601(date)
+    end)
   end
 end

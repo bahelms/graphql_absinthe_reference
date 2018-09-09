@@ -25,8 +25,15 @@ defmodule PlateSlate.Menu do
       [%Category{}, ...]
 
   """
-  def list_categories do
-    Repo.all(Category)
+  def list_categories(args) do
+    Enum.reduce(args, Category, fn
+      {:order, order}, categories ->
+        order_by(categories, {^order, :name})
+
+      {:matching, name}, categories ->
+        where(categories, [c], ilike(c.name, ^"%#{name}%"))
+    end)
+    |> Repo.all()
   end
 
   @doc """
@@ -133,10 +140,6 @@ defmodule PlateSlate.Menu do
     |> Repo.all()
   end
 
-  def list_items(_) do
-    Repo.all(Item)
-  end
-
   @spec filter_with(Ecto.Query.t, map) :: Ecto.Query.t
   defp filter_with(items, filter) do
     Enum.reduce(filter, items, fn
@@ -148,6 +151,12 @@ defmodule PlateSlate.Menu do
 
       {:priced_below, price}, items ->
         from(item in items, where: item.price <= ^price)
+
+      {:added_before, date}, items ->
+        from(item in items, where: item.added_on <= ^date)
+
+      {:added_after, date}, items ->
+        from(item in items, where: item.added_on >= ^date)
 
       {:category, category_name}, items ->
         from(item in items,
