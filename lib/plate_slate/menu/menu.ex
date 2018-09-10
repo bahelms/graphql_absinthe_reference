@@ -252,4 +252,16 @@ defmodule PlateSlate.Menu do
   def change_item(%Item{} = item) do
     Item.changeset(item, %{})
   end
+
+  @search [Item, Category]
+  def search(term) do
+    pattern = "%#{term}%"
+    Enum.flat_map(@search, &search_ecto(&1, pattern))
+  end
+
+  defp search_ecto(schema, pattern) do
+    schema
+    |> where([s], ilike(s.name, ^pattern) or ilike(s.description, ^pattern))
+    |> Repo.all()
+  end
 end

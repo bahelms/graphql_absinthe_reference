@@ -63,5 +63,21 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
 
   object :category do
     field(:name, :string)
+    field(:description, :string)
+    field :items, list_of(:menu_item) do
+      resolve(&Resolvers.Menu.items_for_category/3)
+    end
+  end
+
+  union :search_result do
+    types [:menu_item, :category]
+    resolve_type fn
+      %PlateSlate.Menu.Item{}, _ ->
+        :menu_item
+      %PlateSlate.Menu.Category{}, _ ->
+        :category
+      _, _ ->
+        nil
+    end
   end
 end

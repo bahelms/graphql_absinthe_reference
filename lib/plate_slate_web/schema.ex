@@ -5,6 +5,11 @@ defmodule PlateSlateWeb.Schema do
 
   query do
     import_fields :menu_queries
+
+    field :search, list_of(:search_result) do
+      arg(:matching, non_null(:string))
+      resolve(&PlateSlateWeb.Resolvers.Menu.search/3)
+    end
   end
 
   enum :sort_order do
