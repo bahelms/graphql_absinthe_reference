@@ -29,6 +29,26 @@ defmodule PlateSlateWeb.Resolvers.Menu do
     end
   end
 
+  def update_item(_, %{input: params}, _) do
+    with %Menu.Item{} = item <- PlateSlate.Repo.get_by(Menu.Item, name: params.name),
+         {:ok, menu_item} <- Menu.update_item(item, params) do
+      {:ok, %{menu_item: menu_item}}
+    else
+      nil ->
+        {:ok, %{errors: %{key: "name", message: "No Item found with name #{params.name}"}}}
+      {:error, changeset} ->
+        {:ok, %{errors: transform_errors(changeset)}}
+    end
+
+    # case Menu.update_item(item, params) do
+    #   {:error, changeset} ->
+    #     {:ok, %{errors: transform_errors(changeset)}}
+
+    #   {:ok, menu_item} ->
+    #     {:ok, %{menu_item: menu_item}}
+    # end
+  end
+
   defp transform_errors(changeset) do
     changeset
     |> Ecto.Changeset.traverse_errors(&format_error/1)
