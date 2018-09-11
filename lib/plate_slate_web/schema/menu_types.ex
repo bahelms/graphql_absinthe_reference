@@ -89,4 +89,9 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
     field(:price, non_null(:decimal))
     field(:category_id, non_null(:id))
   end
+
+  object :menu_item_result do
+    field(:menu_item, :menu_item)
+    field(:errors, list_of(:input_error))
+  end
 end

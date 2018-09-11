@@ -14,10 +14,17 @@ defmodule PlateSlateWeb.Schema do
   end
 
   mutation do
-    field(:create_menu_item, :menu_item) do
+    # second arg is return type
+    field :create_menu_item, :menu_item_result do
       arg(:input, non_null(:menu_item_input))
       resolve(&Resolvers.Menu.create_item/3)
     end
+  end
+
+  @desc "An error encountered trying to persist input"
+  object :input_error do
+    field(:key, non_null(:string))
+    field(:message, non_null(:string))
   end
 
   enum :sort_order do
