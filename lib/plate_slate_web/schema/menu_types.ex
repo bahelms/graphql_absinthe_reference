@@ -31,7 +31,7 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
     field(:description, :string)
 
     @desc "Current price of item"
-    field(:price, :integer)
+    field(:price, :decimal)
 
     @desc "Date added to menu"
     field(:added_on, :date)
@@ -81,5 +81,12 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
       _, _ ->
         nil
     end
+  end
+
+  input_object :menu_item_input do
+    field(:name, non_null(:string))
+    field(:description, :string)
+    field(:price, non_null(:decimal))
+    field(:category_id, non_null(:id))
   end
 end
