@@ -21,7 +21,7 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
 
   @desc "Item available on the menu"
   object :menu_item do
-    interfaces [:search_result]
+    interfaces([:search_result])
     field(:id, :id)
 
     @desc "Name of item"
@@ -63,9 +63,10 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
   end
 
   object :category do
-    interfaces [:search_result]
+    interfaces([:search_result])
     field(:name, :string)
     field(:description, :string)
+
     field :items, list_of(:menu_item) do
       resolve(&Resolvers.Menu.items_for_category/3)
     end
@@ -73,21 +74,28 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
 
   interface :search_result do
     field(:name, :string)
-    resolve_type fn
+
+    resolve_type(fn
       %PlateSlate.Menu.Item{}, _ ->
         :menu_item
+
       %PlateSlate.Menu.Category{}, _ ->
         :category
+
       _, _ ->
         nil
-    end
+    end)
   end
 
   input_object :menu_item_input do
     field(:name, non_null(:string))
     field(:description, :string)
     field(:price, non_null(:decimal))
-    field(:category_id, non_null(:id))
+    field(:category, non_null(:category_input))
+  end
+
+  input_object :category_input do
+    field(:name, :string)
   end
 
   object :menu_item_result do

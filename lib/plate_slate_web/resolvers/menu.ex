@@ -20,6 +20,9 @@ defmodule PlateSlateWeb.Resolvers.Menu do
   end
 
   def create_item(_, %{input: params}, _) do
+    category = Menu.find_or_create_category(params.category)
+    params = Map.put(params, :category, category)
+
     case Menu.create_item(params) do
       {:error, changeset} ->
         {:ok, %{errors: transform_errors(changeset)}}
@@ -35,18 +38,12 @@ defmodule PlateSlateWeb.Resolvers.Menu do
       {:ok, %{menu_item: menu_item}}
     else
       nil ->
-        {:ok, %{errors: %{key: "name", message: "No Item found with name #{params.name}"}}}
+        message = "No Item found with name #{params.name}"
+        {:ok, %{errors: %{key: "name", message: message}}}
+
       {:error, changeset} ->
         {:ok, %{errors: transform_errors(changeset)}}
     end
-
-    # case Menu.update_item(item, params) do
-    #   {:error, changeset} ->
-    #     {:ok, %{errors: transform_errors(changeset)}}
-
-    #   {:ok, menu_item} ->
-    #     {:ok, %{menu_item: menu_item}}
-    # end
   end
 
   defp transform_errors(changeset) do
@@ -58,7 +55,7 @@ defmodule PlateSlateWeb.Resolvers.Menu do
     end)
   end
 
-  @spec format_error(Ecto.Changeset.error) :: String.t
+  @spec format_error(Ecto.Changeset.error()) :: String.t()
   defp format_error({msg, opts}) do
     Enum.reduce(opts, msg, fn {key, value}, acc ->
       String.replace(acc, "%{#{key}}", to_string(value))

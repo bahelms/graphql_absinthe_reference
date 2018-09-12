@@ -117,6 +117,16 @@ defmodule PlateSlate.Menu do
     Category.changeset(category, %{})
   end
 
+  def find_or_create_category(params) do
+    case Repo.get_by(Category, name: params.name) do
+      nil ->
+        create_category(params)
+
+      category ->
+        category
+    end
+  end
+
   alias PlateSlate.Menu.Item
 
   @doc """
@@ -140,7 +150,7 @@ defmodule PlateSlate.Menu do
     |> Repo.all()
   end
 
-  @spec filter_with(Ecto.Query.t, map) :: Ecto.Query.t
+  @spec filter_with(Ecto.Query.t(), map) :: Ecto.Query.t()
   defp filter_with(items, filter) do
     Enum.reduce(filter, items, fn
       {:name, name}, items ->

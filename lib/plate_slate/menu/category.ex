@@ -26,5 +26,6 @@ defmodule PlateSlate.Menu.Category do
     category
     |> cast(attrs, [:description, :name])
     |> validate_required([:name])
+    |> unique_constraint(:name)
   end
 end
