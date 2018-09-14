@@ -16,7 +16,7 @@ defmodule PlateSlateWeb.Schema.Query.MenuItemsTest do
   test "menuItems field returns menu items", %{conn: conn} do
     conn = get(conn, "/api", query: @query)
     assert json = json_response(conn, 200)
-    assert length(json["data"]["menuItems"]) == 14
+    assert length(json["data"]["menuItems"]) == 15
     [item | _] = json["data"]["menuItems"]
     assert item == %{"name" => "Bánh mì", "price" => "4.5"}
   end
