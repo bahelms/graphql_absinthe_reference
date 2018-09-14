@@ -1,11 +1,11 @@
-#---
+# ---
 # Excerpted from "Craft GraphQL APIs in Elixir with Absinthe",
 # published by The Pragmatic Bookshelf.
 # Copyrights apply to this code. It may not be used to create training material,
 # courses, books, articles, and the like. Contact us if you are in doubt.
 # We make no guarantees that this code is fit for any purpose.
 # Visit http://www.pragmaticprogrammer.com/titles/wwgraphql for more book information.
-#---
+# ---
 defmodule PlateSlate.Application do
   use Application
 
@@ -16,12 +16,9 @@ defmodule PlateSlate.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Start the Ecto repository
       supervisor(PlateSlate.Repo, []),
-      # Start the endpoint when the application starts
       supervisor(PlateSlateWeb.Endpoint, []),
-      # Start your own worker by calling: PlateSlate.Worker.start_link(arg1, arg2, arg3)
-      # worker(PlateSlate.Worker, [arg1, arg2, arg3]),
+      supervisor(Absinthe.Subscription, [PlateSlateWeb.Endpoint])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
