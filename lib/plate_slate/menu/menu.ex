@@ -198,6 +198,10 @@ defmodule PlateSlate.Menu do
   """
   def get_item!(id), do: Repo.get!(Item, id)
 
+  def get_item_by(param) do
+    Repo.get_by(Item, param)
+  end
+
   @doc """
   Creates a item.
 

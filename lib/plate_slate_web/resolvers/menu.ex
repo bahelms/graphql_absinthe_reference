@@ -23,42 +23,19 @@ defmodule PlateSlateWeb.Resolvers.Menu do
     category = Menu.find_or_create_category(params.category)
     params = Map.put(params, :category, category)
 
-    case Menu.create_item(params) do
-      {:error, changeset} ->
-        {:ok, %{errors: transform_errors(changeset)}}
-
-      {:ok, menu_item} ->
-        {:ok, %{menu_item: menu_item}}
+    with {:ok, item} <- Menu.create_item(params) do
+      {:ok, %{menu_item: item}}
     end
   end
 
   def update_item(_, %{input: params}, _) do
-    with %Menu.Item{} = item <- PlateSlate.Repo.get_by(Menu.Item, name: params.name),
+    with %Menu.Item{} = item <- Menu.get_item_by(name: params.name),
          {:ok, menu_item} <- Menu.update_item(item, params) do
       {:ok, %{menu_item: menu_item}}
     else
       nil ->
         message = "No Item found with name #{params.name}"
         {:ok, %{errors: %{key: "name", message: message}}}
-
-      {:error, changeset} ->
-        {:ok, %{errors: transform_errors(changeset)}}
     end
-  end
-
-  defp transform_errors(changeset) do
-    changeset
-    |> Ecto.Changeset.traverse_errors(&format_error/1)
-    |> Enum.map(fn
-      {key, value} ->
-        %{key: key, message: value}
-    end)
-  end
-
-  @spec format_error(Ecto.Changeset.error()) :: String.t()
-  defp format_error({msg, opts}) do
-    Enum.reduce(opts, msg, fn {key, value}, acc ->
-      String.replace(acc, "%{#{key}}", to_string(value))
-    end)
   end
 end

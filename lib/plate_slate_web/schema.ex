@@ -1,6 +1,7 @@
 defmodule PlateSlateWeb.Schema do
   use Absinthe.Schema
   alias PlateSlateWeb.Resolvers
+  alias PlateSlateWeb.Schema.Middleware
 
   import_types(__MODULE__.MenuTypes)
   import_types(__MODULE__.OrderingTypes)
@@ -17,8 +18,10 @@ defmodule PlateSlateWeb.Schema do
   mutation do
     # second arg is return type
     field :create_menu_item, :menu_item_result do
+      # order matters for field macros
       arg(:input, non_null(:menu_item_input))
       resolve(&Resolvers.Menu.create_item/3)
+      middleware(Middleware.ChangesetErrors)
     end
 
     field :update_menu_item, :menu_item_result do
