@@ -6,6 +6,16 @@ defmodule PlateSlateWeb.Schema do
   import_types(__MODULE__.MenuTypes)
   import_types(__MODULE__.OrderingTypes)
 
+  def middleware(middleware, _field, %{identifier: :mutation}) do
+    middleware ++ [Middleware.ChangesetErrors]
+  end
+
+  def middleware(middleware, _field, _object) do
+    # Runs for all fields of every object loaded from schema
+    # Objects are cached, so it doesn't run on every query
+    middleware
+  end
+
   query do
     import_fields(:menu_queries)
 
@@ -21,7 +31,6 @@ defmodule PlateSlateWeb.Schema do
       # order matters for field macros
       arg(:input, non_null(:menu_item_input))
       resolve(&Resolvers.Menu.create_item/3)
-      middleware(Middleware.ChangesetErrors)
     end
 
     field :update_menu_item, :menu_item_result do
