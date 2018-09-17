@@ -1,11 +1,11 @@
-#---
+# ---
 # Excerpted from "Craft GraphQL APIs in Elixir with Absinthe",
 # published by The Pragmatic Bookshelf.
 # Copyrights apply to this code. It may not be used to create training material,
 # courses, books, articles, and the like. Contact us if you are in doubt.
 # We make no guarantees that this code is fit for any purpose.
 # Visit http://www.pragmaticprogrammer.com/titles/wwgraphql for more book information.
-#---
+# ---
 defmodule PlateSlate.Mixfile do
   use Mix.Project
 
@@ -14,9 +14,9 @@ defmodule PlateSlate.Mixfile do
       app: :plate_slate,
       version: "0.0.1",
       elixir: "~> 1.4",
-      elixirc_paths: elixirc_paths(Mix.env),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
     ]
@@ -34,8 +34,8 @@ defmodule PlateSlate.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "dev/support", "test/support"]
-  defp elixirc_paths(:dev),  do: ["lib", "dev/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(:dev), do: ["lib", "dev/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Specifies your project dependencies.
   #
@@ -55,6 +55,8 @@ defmodule PlateSlate.Mixfile do
       {:absinthe_plug, "~> 1.4.0"},
       {:absinthe_phoenix, "~> 1.4.0"},
       {:absinthe_relay, "~> 1.4.0"},
+      {:comeonin_ecto_password, "~> 2.1"},
+      {:pbkdf2_elixir, "~> 0.12.0"}
     ]
   end
 

@@ -8,13 +8,14 @@ defmodule PlateSlate.Ordering.Order do
     field(:state, :string, read_after_writes: true)
     timestamps()
 
+    belongs_to(:customer, PlateSlate.Accounts.User)
     embeds_many(:items, PlateSlate.Ordering.Item)
   end
 
   @doc false
   def changeset(order, attrs) do
     order
-    |> cast(attrs, [:customer_number, :ordered_at, :state])
+    |> cast(attrs, [:customer_number, :ordered_at, :state, :customer_id])
     |> cast_embed(:items)
   end
 end
