@@ -5,6 +5,7 @@ defmodule PlateSlateWeb.Schema do
 
   import_types(__MODULE__.MenuTypes)
   import_types(__MODULE__.OrderingTypes)
+  import_types(__MODULE__.AccountsTypes)
 
   def middleware(middleware, field, %{identifier: :allergy_info} = object) do
     new_middleware = {Absinthe.Middleware.MapGet, to_string(field.identifier)}
@@ -28,6 +29,7 @@ defmodule PlateSlateWeb.Schema do
 
     field :search, list_of(:search_result) do
       arg(:matching, non_null(:string))
+      # Resolvers take 3 args: (field_parent, field_args, resolution_struct)
       resolve(&Resolvers.Menu.search/3)
     end
   end
@@ -58,6 +60,13 @@ defmodule PlateSlateWeb.Schema do
     field :complete_order, :order_result do
       arg(:id, non_null(:id))
       resolve(&Resolvers.Ordering.complete_order/3)
+    end
+
+    field :login, :session do
+      arg(:email, non_null(:string))
+      arg(:password, non_null(:string))
+      arg(:role, non_null(:role))
+      resolve(&Resolvers.Accounts.login/3)
     end
   end
 
