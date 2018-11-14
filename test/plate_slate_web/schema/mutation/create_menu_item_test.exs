@@ -33,6 +33,7 @@ defmodule PlateSlateWeb.Schema.Query.CreateMenuItemTest do
       "category" => %{"name" => "Sandwiches"}
     }
 
+    conn = auth_user(conn, TestSupport.Factory.create_user("employee"))
     response = post(conn, "/api", query: @query, variables: %{menuItem: menu_item})
 
     assert json_response(response, 200) == %{
@@ -57,6 +58,7 @@ defmodule PlateSlateWeb.Schema.Query.CreateMenuItemTest do
       "category" => %{"name" => "Sandwiches"}
     }
 
+    conn = auth_user(conn, TestSupport.Factory.create_user("employee"))
     response = post(conn, "/api", query: @query, variables: %{menuItem: menu_item})
 
     assert json_response(response, 200) == %{
@@ -90,6 +92,7 @@ defmodule PlateSlateWeb.Schema.Query.CreateMenuItemTest do
       "category" => %{"name" => "Barf"}
     }
 
+    conn = auth_user(conn, TestSupport.Factory.create_user("employee"))
     response = post(conn, "/api", query: @query, variables: %{menuItem: menu_item})
 
     assert Repo.get_by(Menu.Category, name: "Barf")
