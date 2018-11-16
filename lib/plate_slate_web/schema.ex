@@ -32,6 +32,10 @@ defmodule PlateSlateWeb.Schema do
       # Resolvers take 3 args: (field_parent, field_args, resolution_struct)
       resolve(&Resolvers.Menu.search/3)
     end
+
+    field :me, :user do
+      resolve(&Resolvers.Accounts.me/3)
+    end
   end
 
   mutation do
