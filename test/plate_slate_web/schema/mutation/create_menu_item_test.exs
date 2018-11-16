@@ -50,6 +50,29 @@ defmodule PlateSlateWeb.Schema.Query.CreateMenuItemTest do
            }
   end
 
+  test "must be authorized as an employee to do menu item creation", %{conn: conn} do
+    menu_item = %{
+      "name" => "French Dip",
+      "description" => "Roast beef, caramelized onions, horseradish, ...",
+      "price" => "5.75",
+      "category" => %{"name" => "Sandwiches"}
+    }
+
+    conn = auth_user(conn, TestSupport.Factory.create_user("customer"))
+    response = post(conn, "/api", query: @query, variables: %{menuItem: menu_item})
+
+    assert json_response(response, 200) == %{
+             "data" => %{"createMenuItem" => nil},
+             "errors" => [
+               %{
+                 "locations" => [%{"column" => 0, "line" => 2}],
+                 "message" => "unauthorized",
+                 "path" => ["createMenuItem"]
+               }
+             ]
+           }
+  end
+
   test "creating a menu item with an existing name fails", %{conn: conn} do
     menu_item = %{
       "name" => "Reuben",
