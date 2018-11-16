@@ -36,7 +36,13 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
     @desc "Date added to menu"
     field(:added_on, :date)
 
+    @desc "Information regarding food allergies"
     field(:allergy_info, list_of(:allergy_info))
+
+    @desc "Item category"
+    field :category, :category do
+      resolve(&Resolvers.Menu.category_for_item/3)
+    end
   end
 
   @desc "Filtering options for the menu item list"

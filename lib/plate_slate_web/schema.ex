@@ -7,21 +7,13 @@ defmodule PlateSlateWeb.Schema do
   import_types(__MODULE__.OrderingTypes)
   import_types(__MODULE__.AccountsTypes)
 
-  def middleware(middleware, field, %{identifier: :allergy_info} = object) do
-    new_middleware = {Absinthe.Middleware.MapGet, to_string(field.identifier)}
-
-    middleware
-    |> Absinthe.Schema.replace_default(new_middleware, field, object)
-  end
-
-  def middleware(middleware, _field, %{identifier: :mutation}) do
-    middleware ++ [Middleware.ChangesetErrors]
-  end
-
-  def middleware(middleware, _field, _object) do
+  def middleware(middleware, field, object) do
     # Runs for all fields of every object loaded from schema
     # Objects are cached, so it doesn't run on every query
     middleware
+    |> Middleware.apply(:errors, field, object)
+    |> Middleware.apply(:get_string, field, object)
+    |> Middleware.apply(:debug, field, object)
   end
 
   query do
@@ -74,6 +66,7 @@ defmodule PlateSlateWeb.Schema do
       arg(:role, non_null(:role))
       resolve(&Resolvers.Accounts.login/3)
 
+      # Persists between requests for sockets
       middleware(fn res, _ ->
         with %{value: %{user: user}} <- res do
           %{res | context: Map.put(res.context, :current_user, user)}
