@@ -1,6 +1,7 @@
 defmodule PlateSlateWeb.Schema.MenuTypes do
   use Absinthe.Schema.Notation
   alias PlateSlateWeb.Resolvers
+  import Absinthe.Resolution.Helpers
 
   object :menu_queries do
     @desc "The list of available items on the menu"
@@ -52,7 +53,8 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
 
     @desc "Matching a category name"
     # when a filter object is provided, category is required
-    field(:category, non_null(:string))
+    field(:category, :string)
+    # field(:category, non_null(:string))
 
     @desc "Matching a tag"
     field(:tag, :string)
@@ -76,7 +78,11 @@ defmodule PlateSlateWeb.Schema.MenuTypes do
     field(:description, :string)
 
     field :items, list_of(:menu_item) do
-      resolve(&Resolvers.Menu.items_for_category/3)
+      arg(:filter, :menu_item_filter)
+      arg(:order, type: :sort_order, default_value: :asc)
+      # resolve(&Resolvers.Menu.items_for_category/3)
+      # This does the same thing as Resolves.Menu.items_for_category
+      resolve(dataloader(Menu, :items))
     end
   end
 

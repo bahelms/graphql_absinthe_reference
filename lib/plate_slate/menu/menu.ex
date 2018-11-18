@@ -13,8 +13,43 @@ defmodule PlateSlate.Menu do
 
   import Ecto.Query, warn: false
   alias PlateSlate.Repo
+  alias PlateSlate.Menu.{Category, Item}
 
-  alias PlateSlate.Menu.Category
+  @doc """
+  Dataloader usage examples:
+      alias PlateSlate.Menu
+      source = Menu.data()
+      loader = Dataloader.new() |> Dataloader.add_source(Menu, source)
+      loader = (
+        loader
+        |> Dataloader.load(Menu, Menu.Item, 1)
+        |> Dataloader.load(Menu, Menu.Item, 2)
+      )
+      loader = Dataloader.run(loader)
+
+      # results
+      item = Dataloader.get(loader, Menu, Menu.Item, 2)
+      items = Dataloader.get_many(loader, Menu, Menu.Item, [1, 2])
+
+      # associations
+      loader = (
+        loader
+        |> Dataloader.load_many(Menu, :category, items)
+        |> Dataloader.run()
+      )
+      categories = Dataloader.get_many(loader, Menu, :category, items)
+  """
+  def data do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  def query(Item, args) do
+    items_query(args)
+  end
+
+  def query(queryable, _) do
+    queryable
+  end
 
   @doc """
   Returns the list of categories.
@@ -127,8 +162,6 @@ defmodule PlateSlate.Menu do
     end
   end
 
-  alias PlateSlate.Menu.Item
-
   @doc """
   Returns the list of items.
 
@@ -140,14 +173,18 @@ defmodule PlateSlate.Menu do
   """
   def list_items(args) do
     args
-    |> Enum.reduce(Item, fn
+    |> items_query()
+    |> Repo.all()
+  end
+
+  defp items_query(args) do
+    Enum.reduce(args, Item, fn
       {:order, order}, items ->
         order_by(items, {^order, :name})
 
       {:filter, filter}, items ->
         filter_with(items, filter)
     end)
-    |> Repo.all()
   end
 
   @spec filter_with(Ecto.Query.t(), map) :: Ecto.Query.t()
@@ -277,5 +314,12 @@ defmodule PlateSlate.Menu do
     schema
     |> where([s], ilike(s.name, ^pattern) or ilike(s.description, ^pattern))
     |> Repo.all()
+  end
+
+  def categories_by_id(_, ids) do
+    Category
+    |> where([c], c.id in ^Enum.uniq(ids))
+    |> Repo.all()
+    |> Map.new(fn category -> {category.id, category} end)
   end
 end

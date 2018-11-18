@@ -1,6 +1,6 @@
 defmodule PlateSlateWeb.Resolvers.Menu do
   alias PlateSlate.Menu
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
+  import Absinthe.Resolution.Helpers, only: [on_load: 2]
 
   def items(_, args, _) do
     {:ok, Menu.list_items(args)}
@@ -10,17 +10,23 @@ defmodule PlateSlateWeb.Resolvers.Menu do
     {:ok, Menu.list_categories(args)}
   end
 
-  def items_for_category(category, _, _) do
-    query = Ecto.assoc(category, :items)
-    {:ok, PlateSlate.Repo.all(query)}
-  end
+  # def items_for_category(category, args, %{context: %{loader: loader}}) do
+  #   loader
+  #   |> Dataloader.load(Menu, {:items, args}, category)
+  #   |> on_load(fn loader ->
+  #     items = Dataloader.get(loader, Menu, {:items, args}, category)
+  #     {:ok, items}
+  #   end)
+  # end
 
-  def category_for_item(item, _, _) do
-    batch({PlateSlate.Menu, :categories_by_id}, item.category_id, fn
-      categories ->
-        {:ok, Map.get(categories, item.category_id)}
+  def category_for_item(item, _, %{context: %{loader: loader}}) do
+    # This implementation is the same as Absinthe.Resolution.Helpers.dataloader
+    loader
+    |> Dataloader.load(Menu, :category, item)
+    |> on_load(fn loader ->
+      category = Dataloader.get(loader, Menu, :category, item)
+      {:ok, category}
     end)
-    |> IO.inspect()
   end
 
   def search(_, %{matching: term}, _) do

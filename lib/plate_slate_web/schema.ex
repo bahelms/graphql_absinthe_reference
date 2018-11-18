@@ -16,6 +16,25 @@ defmodule PlateSlateWeb.Schema do
     |> Middleware.apply(:debug, field, object)
   end
 
+  def dataloader do
+    Dataloader.new()
+    |> Dataloader.add_source(PlateSlate.Menu, PlateSlate.Menu.data())
+  end
+
+  @doc """
+  Runs after the PlateSlateWeb.Context plug
+  """
+  def context(ctx) do
+    Map.put(ctx, :loader, dataloader())
+  end
+
+  @doc """
+  Add Dataloader to plugins list. Defaults are Async and Batch.
+  """
+  def plugins do
+    [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults()]
+  end
+
   query do
     import_fields(:menu_queries)
 
