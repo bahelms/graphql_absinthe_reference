@@ -6,6 +6,8 @@ defmodule PlateSlateWeb.Schema do
   import_types(__MODULE__.MenuTypes)
   import_types(__MODULE__.OrderingTypes)
   import_types(__MODULE__.AccountsTypes)
+  # provides directives
+  import_types(Absinthe.Phoenix.Types)
 
   def middleware(middleware, field, object) do
     # Runs for all fields of every object loaded from schema
