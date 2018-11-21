@@ -10,15 +10,6 @@ defmodule PlateSlateWeb.Resolvers.Menu do
     {:ok, Menu.list_categories(args)}
   end
 
-  # def items_for_category(category, args, %{context: %{loader: loader}}) do
-  #   loader
-  #   |> Dataloader.load(Menu, {:items, args}, category)
-  #   |> on_load(fn loader ->
-  #     items = Dataloader.get(loader, Menu, {:items, args}, category)
-  #     {:ok, items}
-  #   end)
-  # end
-
   def category_for_item(item, _, %{context: %{loader: loader}}) do
     # This implementation is the same as Absinthe.Resolution.Helpers.dataloader
     loader
@@ -51,5 +42,13 @@ defmodule PlateSlateWeb.Resolvers.Menu do
         message = "No Item found with name #{params.name}"
         {:ok, %{errors: %{key: "name", message: message}}}
     end
+  end
+
+  def get_item(_, %{id: id}, %{context: %{loader: loader}}) do
+    loader
+    |> Dataloader.load(Menu, Menu.Item, id)
+    |> on_load(fn loader ->
+      {:ok, Dataloader.get(loader, Menu, Menu.Item, id)}
+    end)
   end
 end

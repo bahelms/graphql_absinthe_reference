@@ -49,6 +49,11 @@ defmodule PlateSlateWeb.Schema do
     field :me, :user do
       resolve(&Resolvers.Accounts.me/3)
     end
+
+    field :menu_item, :menu_item do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.Menu.get_item/3)
+    end
   end
 
   mutation do
