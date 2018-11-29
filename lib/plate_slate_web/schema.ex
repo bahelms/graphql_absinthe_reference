@@ -144,6 +144,12 @@ defmodule PlateSlateWeb.Schema do
 
       resolve(fn %{order: order}, _, _ -> {:ok, order} end)
     end
+
+    field :new_menu_item, :menu_item do
+      config(fn _args, _info ->
+        {:ok, topic: "*"}
+      end)
+    end
   end
 
   @desc "An error encountered trying to persist input"
